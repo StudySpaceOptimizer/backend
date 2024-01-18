@@ -1,4 +1,4 @@
-use super::{common::*, validate_utils::*};
+use super::common::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Seat {
@@ -7,49 +7,57 @@ pub struct Seat {
   pub other_info: Option<String>,
 }
 
+impl FromRow<'_, SqliteRow> for Seat {
+  fn from_row(row: &SqliteRow) -> Result<Self, sqlx::Error> {
+    /*
+    .try_into().map_err(|_| Error::RowNotFound)?;
+     */
+    Ok(Seat {
+      seat_id: row.try_get("seat_id")?,
+      available: row.try_get("available")?,
+      other_info: row.try_get("other_info")?,
+    })
+  }
+}
+
+// 座位狀態
 #[derive(Serialize)]
-pub struct SeatStatus {
+pub struct SeatAvailability {
   pub seat_id: u16,
-  pub status: Status,
+  pub status: SeatAvailabilityStatus,
+}
+
+// 全部座位狀態
+#[derive(Serialize)]
+pub struct SeatsOverview {
+  pub seats: Vec<SeatAvailability>,
 }
 
 #[derive(Serialize)]
-pub struct AllSeatsStatus {
-  pub seats: Vec<SeatStatus>,
-}
-
-#[derive(Serialize)]
-pub enum Status {
+pub enum SeatAvailabilityStatus {
   Available,
   Unavailable,
   Borrowed,
 }
 
-#[derive(Debug, Serialize, Deserialize, Validate)]
-pub struct SeatAvailabilityRequest {
-  #[validate(custom = "validate_seat_id")]
-  pub seat_id: u16,
-  pub available: bool,
-}
-
-impl ToString for Status {
+impl ToString for SeatAvailabilityStatus {
   fn to_string(&self) -> String {
     match *self {
-      Status::Available => "Available".to_owned(),
-      Status::Unavailable => "Unavailable".to_owned(),
-      Status::Borrowed => "Borrowed".to_owned(),
+      SeatAvailabilityStatus::Available => "Available".to_owned(),
+      SeatAvailabilityStatus::Unavailable => "Unavailable".to_owned(),
+      SeatAvailabilityStatus::Borrowed => "Borrowed".to_owned(),
     }
   }
 }
 
-impl FromStr for Status {
+impl FromStr for SeatAvailabilityStatus {
   type Err = std::io::Error;
 
   fn from_str(s: &str) -> Result<Self, Self::Err> {
     match s {
-      "Available" => Ok(Status::Available),
-      "Unavailable" => Ok(Status::Unavailable),
-      "Borrowed" => Ok(Status::Borrowed),
+      "Available" => Ok(SeatAvailabilityStatus::Available),
+      "Unavailable" => Ok(SeatAvailabilityStatus::Unavailable),
+      "Borrowed" => Ok(SeatAvailabilityStatus::Borrowed),
       _ => Err(std::io::Error::new(
         ErrorKind::InvalidInput,
         "Provided string does not match any Status variant",

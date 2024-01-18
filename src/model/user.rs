@@ -1,68 +1,36 @@
-use super::{common::*, validate_utils::*};
-use regex::Regex;
-use sqlx::{encode::IsNull, sqlite::SqliteArgumentValue, Encode};
-
-#[derive(Debug, Serialize, Deserialize, Validate)]
-pub struct RegisterRequest {
-  #[validate(length(min = 1, max = 20), custom = "validate_username")]
-  pub user_name: String,
-  #[validate(length(min = 8, max = 20))]
-  pub password: String,
-  // #[validate(email, contains = "@mail.ntou.edu.tw")]
-  #[validate(email)]
-  pub email: String,
-}
+use super::common::*;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct UserInfo {
-  pub user_name: String,
+pub struct User {
+  pub user_id: i64,
   pub password_hash: String,
   pub email: String,
   pub user_role: UserRole,
   pub verified: bool,
   pub verification_token: String,
+  pub points: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize, Validate)]
-pub struct LoginRequest {
-  #[validate(length(min = 1, max = 20), custom = "validate_username")]
-  pub user_name: String,
-  #[validate(length(min = 8, max = 20))]
-  pub password: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Validate)]
-#[validate(schema(function = "validate_ban_request", skip_on_field_errors = false))]
-pub struct BanRequest {
-  #[validate(length(min = 1, max = 20), custom = "validate_username")]
-  pub user_name: String,
-  pub start_time: i64,
-  pub end_time: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize, Validate)]
-pub struct UnBanRequest {
-  #[validate(length(min = 1, max = 20), custom = "validate_username")]
-  pub user_name: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub enum UserRole {
-  RegularUser,
-  Admin,
-}
-
-impl FromRow<'_, SqliteRow> for UserInfo {
+impl FromRow<'_, SqliteRow> for User {
   fn from_row(row: &SqliteRow) -> Result<Self, sqlx::Error> {
-    Ok(UserInfo {
-      user_name: row.try_get("user_name")?,
-      password_hash: row.try_get("password_hash")?,
+    Ok(User {
+      user_id: row.try_get("user_id")?,
       email: row.try_get("email")?,
+      password_hash: row.try_get("password_hash")?,
       user_role: row.try_get("user_role")?,
       verified: row.try_get("verified")?,
       verification_token: row.try_get("verification_token")?,
+      points: row.try_get("points")?,
     })
   }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Copy)]
+pub enum UserRole {
+  Student,
+  RegularUser,
+  Admin,
+  Assistant,
 }
 
 impl<'r> Decode<'r, Sqlite> for UserRole {
@@ -70,8 +38,10 @@ impl<'r> Decode<'r, Sqlite> for UserRole {
     let value = <&str as Decode<Sqlite>>::decode(value)?;
 
     match value {
+      "Student" => Ok(UserRole::Student),
       "RegularUser" => Ok(UserRole::RegularUser),
       "Admin" => Ok(UserRole::Admin),
+      "Assistant" => Ok(UserRole::Assistant),
       _ => Err("Invalid UserRole".into()),
     }
   }
@@ -97,8 +67,10 @@ impl Type<Sqlite> for UserRole {
 impl ToString for UserRole {
   fn to_string(&self) -> String {
     match *self {
+      UserRole::Student => "Student".to_owned(),
       UserRole::RegularUser => "RegularUser".to_owned(),
       UserRole::Admin => "Admin".to_owned(),
+      UserRole::Assistant => "Assistant".to_owned(),
     }
   }
 }
@@ -108,37 +80,14 @@ impl FromStr for UserRole {
 
   fn from_str(s: &str) -> Result<Self, Self::Err> {
     match s {
+      "Student" => Ok(UserRole::Student),
       "RegularUser" => Ok(UserRole::RegularUser),
       "Admin" => Ok(UserRole::Admin),
+      "Assistant" => Ok(UserRole::Assistant),
       _ => Err(std::io::Error::new(
         ErrorKind::InvalidInput,
         "Provided string does not match any UserRole variant",
       )),
     }
   }
-}
-
-fn validate_username(user_name: &str) -> Result<(), ValidationError> {
-  let regex = Regex::new(r"^[a-zA-Z0-9]*$").unwrap();
-
-  if !regex.is_match(user_name) {
-    return Err(ValidationError::new(
-      "Username must only contain letters and numbers",
-    ));
-  }
-
-  Ok(())
-}
-
-fn validate_ban_request(request: &BanRequest) -> Result<(), ValidationError> {
-  let start_time: i64 = request.start_time;
-  let end_time: i64 = request.end_time;
-
-  if end_time < start_time {
-    return Err(ValidationError::new(
-      "Invalid reservation: start time: Start time is greater than end time",
-    ));
-  }
-
-  Ok(())
 }
