@@ -15,6 +15,7 @@ impl SqliteReservationRepository {
   }
 }
 
+#[async_trait]
 impl ReservationRepository for SqliteReservationRepository {
   // 查詢特定位置狀態
   async fn query_seat_reservations(

@@ -6,6 +6,7 @@ Repository 層：
 負責直接與數據庫交互
 定義 reservation Repository 的 interface
 */
+#[async_trait]
 pub trait ReservationRepository {
   async fn query_seat_reservations(
     &self,

@@ -12,6 +12,7 @@ impl SqliteTimeSlotRepository {
   }
 }
 
+#[async_trait]
 impl TimeSlotRepository for SqliteTimeSlotRepository {
   async fn is_overlapping_with_unavailable_timeslot(
     &self,

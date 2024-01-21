@@ -6,6 +6,7 @@ Repository 層：
 負責直接與數據庫交互
 定義 Seat Repository 的 interface
 */
+#[async_trait]
 pub trait SeatRepository {
   async fn query_current_seat_statuses(&self) -> Result<Vec<(u16, String)>, Status>;
   async fn query_seat_statuses_in_specific_timeslot(

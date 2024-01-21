@@ -15,6 +15,7 @@ impl SqliteBlacklistRepository {
   }
 }
 
+#[async_trait]
 impl BlacklistRepository for SqliteBlacklistRepository {
   async fn insert_user_to_blacklist(
     &self,

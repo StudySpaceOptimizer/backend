@@ -1,8 +1,9 @@
 # 使用 Rust 官方 Docker 映像作為基礎映像
-FROM rust:1.75 as builder
+FROM rust:1.67 as builder
 
 # 安裝 sqlite3
-RUN apt-get update && apt-get install -y sqlite3
+RUN apt-get update && \
+    apt-get install -y sqlite3 pkg-config
 
 # 創建並設定工作目錄
 WORKDIR /usr/src/study_space_optimizer
@@ -32,7 +33,27 @@ RUN touch src/main.rs && cargo build --release
 # 第二階段：創建運行映像
 FROM debian:bullseye-slim
 
+
 RUN apt-get update && apt-get install -y openssl libssl1.1 ca-certificates && rm -rf /var/lib/apt/lists/*
+
+# 下载并编译安装 OpenSSL 3.0.0
+# RUN wget
+# RUN tar -xzf openssl-3.0.0.tar.gz && \
+#     cd openssl-3.0.0 && \
+#     ./config && \
+#     make && make install
+# RUN curl -O https://www.openssl.org/source/openssl-3.2.0.tar.gz && \
+#     tar -xzf openssl-3.2.0.tar.gz && \
+#     cd openssl-3.2.0 && \
+#     ./config && \
+#     make && \
+#     make install
+
+# 安装必要的构建工具和依赖
+# RUN apt-get update && \
+#     apt-get install -y build-essential curl ca-certificates && \
+#     rm -rf /var/lib/apt/lists/*
+
 
 # 複製執行檔和資料庫檔案
 COPY --from=builder /usr/src/study_space_optimizer/target/release/study_space_optimizer /usr/src/study_space_optimizer/study_space_optimizer
