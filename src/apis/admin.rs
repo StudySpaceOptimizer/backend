@@ -9,27 +9,31 @@ pub async fn set_unavailable_timeslots(
   request: Json<InsertTimeSlotRequest>,
 ) -> Result<(), Status> {
   handle_validator(request.validate())?;
+  log::info!(
+    "Starting to set unavailable timeslots: User: {}, start_time: {}, end_time: {}",
+    claim.user_id,
+    request.timeslot.start_time,
+    request.timeslot.end_time
+  );
 
   if claim.user_role != user::UserRole::Admin {
     log::warn!(
-      "User {} unauthorized to set unavailable timeslots",
+      "Unauthorized access attempt: User {} tried to set unavailable timeslots",
       claim.user_id
     );
     return Err(Status::Unauthorized);
   }
 
-  log::info!(
-    "Admin {} setting unavailable timeslot from {:?} to {:?}",
-    claim.user_id,
-    request.timeslot.start_time,
-    request.timeslot.end_time
-  );
   app
     .timeslot_service
     .set_unavailable_timeslots(request.timeslot)
     .await?;
 
-  log::info!("Unavailable timeslot set successfully");
+  log::info!(
+    "Completed setting unavailable timeslots successfully:Start_time: {}, end_time: {}",
+    request.timeslot.start_time,
+    request.timeslot.end_time
+  );
   Ok(())
 }
 
@@ -41,21 +45,21 @@ pub async fn set_seat_info(
   request: Json<UpdateSeatRequest>,
 ) -> Result<(), Status> {
   handle_validator(request.validate())?;
+  log::info!(
+    "Starting to set seat info: User: {} seat: {}",
+    claim.user_id,
+    request.seat_id
+  );
 
   if claim.user_role != user::UserRole::Admin {
     log::warn!(
-      "User {} unauthorized to update seat {}",
+      "Unauthorized access attempt: User {} tried to set seat info for seat {}",
       claim.user_id,
       request.seat_id
     );
     return Err(Status::Unauthorized);
   }
 
-  log::info!(
-    "Admin {} updating seat {} info",
-    claim.user_id,
-    request.seat_id
-  );
   app
     .seat_service
     .set_seat_info(
@@ -65,7 +69,10 @@ pub async fn set_seat_info(
     )
     .await?;
 
-  log::info!("Seat {} info updated successfully", request.seat_id);
+  log::info!(
+    "Completed setting seat info successfully: Seat: {}",
+    request.seat_id
+  );
   Ok(())
 }
 
@@ -76,26 +83,31 @@ pub async fn increase_violation_points(
   claim: token::UserClaim,
   request: Json<AddPointsRequest>,
 ) -> Result<(), Status> {
+  handle_validator(request.validate())?;
+
+  log::info!(
+    "Starting to increase violation points: User:{}, user to be incremented: {}",
+    claim.user_id,
+    request.user_id
+  );
+
   if claim.user_role != user::UserRole::Admin {
     log::warn!(
-      "User {} unauthorized to increase violation points for user {}",
+      "Unauthorized access attempt: User {} tried to increase violation points",
       claim.user_id,
-      request.user_id
     );
     return Err(Status::Unauthorized);
   }
 
-  log::info!(
-    "Admin {} increasing violation points for user {}",
-    claim.user_id,
-    request.user_id
-  );
   app
     .user_service
     .add_violation_points(request.user_id, request.points)
     .await?;
 
-  log::info!("Violationpoints increased for user {}", request.user_id);
+  log::info!(
+    "Completed increasing violation points successfully: User to be incremented: {}",
+    request.user_id
+  );
   Ok(())
 }
 
@@ -105,27 +117,28 @@ pub async fn remove_user_from_blacklist(
   claim: token::UserClaim,
   user_id_to_unban: i64,
 ) -> Result<(), Status> {
+  log::info!(
+    "Starting to remove user from blacklist: User: {}, user to be removed: {}",
+    claim.user_id,
+    user_id_to_unban
+  );
+
   if claim.user_role != user::UserRole::Admin {
     log::warn!(
-      "User {} unauthorized to remove user {} from blacklist",
+      "Unauthorized access attempt: User {} tried to remove user {} from blacklist",
       claim.user_id,
       user_id_to_unban
     );
     return Err(Status::Unauthorized);
   }
 
-  log::info!(
-    "Admin {} removing user {} from blacklist",
-    claim.user_id,
-    user_id_to_unban
-  );
   app
     .blacklist_service
     .remove_user_from_blacklist(user_id_to_unban)
     .await?;
 
   log::info!(
-    "User {} removed from blacklist successfully",
+    "Completed removing user from blacklist successfully: User to be removed: {}",
     user_id_to_unban
   );
   Ok(())

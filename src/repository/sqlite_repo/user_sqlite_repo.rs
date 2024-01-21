@@ -21,8 +21,6 @@ impl UserRepository for SqliteUserRepository {
     verified: bool,
     verification_token: &str,
   ) -> Result<(), Status> {
-    log::info!("Inserting new user information");
-
     handle_sqlx(
     query!("INSERT INTO Users (email, password_hash, user_role, verified, verification_token, points) VALUES (?, ?, ?, ?, ?, ?)", email, password_hash, user_role, verified, verification_token, 0)
       .execute(&self.pool)
@@ -30,7 +28,6 @@ impl UserRepository for SqliteUserRepository {
     "Inserting user",
   )?;
 
-    log::info!("Successfully inserted new user information");
     Ok(())
   }
 

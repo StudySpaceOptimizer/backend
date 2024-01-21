@@ -11,19 +11,20 @@ pub async fn reserve_seat(
   handle_validator(request.validate())?;
 
   log::info!(
-    "User {} attempting to reserve seat {}",
+    "Starting to reserve seat: User: {}, Seat: {}",
     claims.user_id,
     request.seat_id
   );
+
   app
     .reservation_service
     .reserve_seat(claims.user_id, request.seat_id, request.timeslot)
     .await?;
 
   log::info!(
-    "Seat {} reserved successfully for user {}",
-    request.seat_id,
-    claims.user_id
+    "Completed seat reservation successfully: User: {}, Seat: {}",
+    claims.user_id,
+    request.seat_id
   );
   Ok(())
 }
@@ -36,18 +37,20 @@ pub async fn delete_reservation(
   reservation_id: i64,
 ) -> Result<(), Status> {
   log::info!(
-    "User {} deleting reservation id: {}",
+    "Starting to delete reservation: User: {}, Reservation: {}",
     claims.user_id,
     reservation_id
   );
+
   app
     .reservation_service
     .delete_reservation(claims.user_id, reservation_id)
     .await?;
 
   log::info!(
-    "Reservation deleted successfully for user {}",
-    claims.user_id
+    "Completed deleting reservation successfully: User ID: {}, Reservation ID: {}",
+    claims.user_id,
+    reservation_id
   );
   Ok(())
 }
@@ -58,7 +61,7 @@ pub async fn display_user_reservations(
   app: &State<App>,
   claims: token::UserClaim,
 ) -> Result<Json<Vec<reservation::Reservation>>, Status> {
-  log::info!("Displaying reservations for user: {}", claims.user_id);
+  log::info!("Starting to display reservations: User: {}", claims.user_id);
 
   let reservations: Vec<reservation::Reservation> = app
     .reservation_service
@@ -66,7 +69,7 @@ pub async fn display_user_reservations(
     .await?;
 
   log::info!(
-    "Displayed reservations successfully for user {}",
+    "Completed displaying reservations successfully: User ID: {}",
     claims.user_id
   );
   Ok(Json(reservations))
@@ -84,7 +87,12 @@ pub async fn show_seat_reservations(
     validate_seat_id(seat_id).map_err(|e| convert_to_validation_errors(e, "seat_id")),
   )?;
 
-  log::info!("Show reservations of seat: {}", seat_id);
+  log::info!(
+    "Starting to show reservations for seat: Seat: {}, start time: {}, end time: {}",
+    seat_id,
+    start_time,
+    end_time
+  );
 
   let timeslots: Vec<reservation::Reservation> = app
     .reservation_service
@@ -102,7 +110,10 @@ pub async fn show_seat_reservations(
     "Serialize the data as a String of JSON",
   )?;
 
-  log::info!("Show reservations successfully for seat {}", seat_id);
+  log::info!(
+    "Completed showing reservations successfully for seat: Seat: {}",
+    seat_id
+  );
 
   Ok(json)
 }

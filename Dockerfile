@@ -42,7 +42,7 @@ COPY Rocket.toml /usr/src/study_space_optimizer/Rocket.toml
 WORKDIR /usr/src/study_space_optimizer
 
 # 設置環境變數
-# COPY .env.release /usr/src/study_space_optimizer/.env
+COPY .env.release /usr/src/study_space_optimizer/.env
 ENV DATABASE_URL=sqlite:./SSO.db3
 
 

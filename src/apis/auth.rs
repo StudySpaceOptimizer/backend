@@ -13,7 +13,8 @@ pub async fn register_user(
   let password = &request.password;
   let user_role = request.user_role;
 
-  log::info!("Registering new user with email: {}", email);
+  log::info!("Starting user registration: Email: {}", email);
+
   let user = app
     .user_service
     .create_user(email, password, user_role)
@@ -23,7 +24,10 @@ pub async fn register_user(
 
   let token = app.user_service.create_verification_token(user.user_id)?;
 
-  log::info!("User registration successful: {}", user.user_id);
+  log::info!(
+    "Completed user registration successfully: User ID: {}",
+    user.user_id
+  );
   Ok(token)
 }
 
@@ -33,7 +37,7 @@ pub async fn resend_verification_email(
   claim: token::VerificationClaim,
 ) -> Result<String, Status> {
   log::info!(
-    "Processing resend verification email request for user: {}",
+    "Starting to process resend verification email request: User: {}",
     claim.user_id
   );
 
@@ -51,18 +55,21 @@ pub async fn resend_verification_email(
 
   let token = app.user_service.create_verification_token(claim.user_id)?;
 
-  log::info!("Verification email resent to user: {}", claim.user_id);
+  log::info!(
+    "Completed resending verification email successfully: User: {}",
+    claim.user_id
+  );
   Ok(token)
 }
 
 #[get("/api/users/verify?<verification_token>")]
 pub async fn verify_email(app: &State<App>, verification_token: String) -> Result<String, Status> {
-  log::info!("Verifying email with token: {}", verification_token);
+  log::info!("Starting to verify email: Token: {}", verification_token);
 
   app.user_service.verify_email(&verification_token).await?;
 
   log::info!(
-    "Email verified successfully for token: {}",
+    "Completed email verification successfully: Token: {}",
     verification_token
   );
   Ok("Your email has been successfully verified.".to_string())
@@ -72,18 +79,18 @@ pub async fn verify_email(app: &State<App>, verification_token: String) -> Resul
 #[post("/api/users/login", data = "<request>")]
 pub async fn login_user(app: &State<App>, request: Json<LoginRequest>) -> Result<String, Status> {
   handle_validator(request.validate())?;
-
   let email = &request.email;
   let password = &request.password;
 
-  log::info!("Processing login request for user: {}", email);
+  log::info!("Starting to process login request: Email: {}", email);
+
   let user = app.user_service.login(email, password).await?;
 
   let token = app
     .user_service
     .create_user_token(user.user_id, user.user_role)?;
 
-  log::info!("User login successful: {}", email);
+  log::info!("Completed user login successfully: Email: {}", email);
   Ok(token)
 }
 

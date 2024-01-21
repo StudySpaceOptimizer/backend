@@ -73,6 +73,7 @@ impl BlacklistRepository for SqliteBlacklistRepository {
     Ok(())
   }
 }
+
 // read
 // async fn is_user_in_blacklist( &self, id: i64) -> Result<bool, Status> {
 //   let result = handle_sqlx(

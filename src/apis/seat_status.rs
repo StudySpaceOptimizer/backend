@@ -11,11 +11,11 @@ use crate::model::{seat, timeslot};
 pub async fn show_current_seats_status(
   app: &State<App>,
 ) -> Result<Json<seat::SeatsOverview>, Status> {
-  log::info!("Retrieving current seats status");
+  log::info!("Starting to show current seats status");
 
   let seat_overview = app.seat_service.get_seats_overview().await?;
 
-  log::info!("Current seats status retrieved successfully");
+  log::info!("Completed showing current seats status successfully");
   Ok(Json(seat_overview))
 }
 
@@ -41,7 +41,7 @@ pub async fn show_seats_status_in_specific_timeslots(
   )?;
 
   log::info!(
-    "Retrieving seats status for time range {} to {}",
+    "Starting to show seats status: Time Range: {} to {}",
     start_time,
     end_time
   );
@@ -51,6 +51,10 @@ pub async fn show_seats_status_in_specific_timeslots(
     .get_seats_overview_in_timeslot(timeslot)
     .await?;
 
-  log::info!("Seats status for specified time range retrieved successfully");
+  log::info!(
+    "Completed showing seats status successfully for time range: {} to {}",
+    start_time,
+    end_time
+  );
   Ok(Json(seat_reserving_statuses))
 }
