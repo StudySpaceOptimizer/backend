@@ -132,7 +132,7 @@ impl SeatRepository for SqliteSeatRepository {
   ) -> Result<(), Status> {
     handle_sqlx(
       query!(
-        "INSERT INTO Seats (seat_id, available, other_info) VALUES (?1, ?2, ?3)",
+        "INSERT OR IGNORE INTO Seats (seat_id, available, other_info) VALUES (?1, ?2, ?3)",
         seat_id,
         available,
         other_info
