@@ -1,5 +1,5 @@
 # 使用 Rust 官方 Docker 映像作為基礎映像
-FROM rust:1.67 as builder
+FROM rust:1.75 as builder
 
 # 安裝 sqlite3
 RUN apt-get update && apt-get install -y sqlite3
@@ -42,7 +42,7 @@ COPY Rocket.toml /usr/src/study_space_optimizer/Rocket.toml
 WORKDIR /usr/src/study_space_optimizer
 
 # 設置環境變數
-COPY .env.release /usr/src/study_space_optimizer/.env
+# COPY .env.release /usr/src/study_space_optimizer/.env
 ENV DATABASE_URL=sqlite:./SSO.db3
 
 
