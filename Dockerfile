@@ -1,5 +1,5 @@
 # 使用 Rust 官方 Docker 映像作為基礎映像
-FROM rust:1.67 as builder
+FROM rust:1.75-bullseye as builder
 
 # 安裝 sqlite3
 RUN apt-get update && \
