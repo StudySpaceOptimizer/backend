@@ -1,5 +1,6 @@
 use super::{common::*, validate_utils::*};
 use reqwest::StatusCode;
+use sqlx::Sqlite;
 use std::{env, fs};
 use tokio::time::{sleep, Duration};
 
@@ -29,13 +30,10 @@ pub fn get_status_code(status_code: u16) -> Result<Json<StatusCodeResponse>, Sta
 
 // 斷開資料庫連接
 #[get("/api/disconnectdb")]
-pub async fn disconnect_db() -> Result<(), Status> {
-  log::info!("Starting to disconnect from database");
-
-  let path = env::var("DATABASE_URL").map_err(|_| Status::InternalServerError)?;
-  fs::remove_file(path).map_err(|_| Status::InternalServerError)?;
-
-  log::info!("Completed disconnecting from database successfully");
+pub async fn disconnect_db(pool: &State<sqlx::Pool<Sqlite>>) -> Result<(), Status> {
+  // log::info!("Starting to disconnect from database");
+  pool.close().await;
+  // log::info!("Completed disconnecting from database successfully");
   Ok(())
 }
 

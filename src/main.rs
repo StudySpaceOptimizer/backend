@@ -226,6 +226,7 @@ async fn main() {
     .mount("/", routes)
     .attach(CORS)
     .manage(app)
+    .manage(pool)
     .launch();
 
   tokio::select! {
