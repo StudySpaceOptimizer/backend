@@ -28,7 +28,6 @@ sqlx = { version = "0.7", features = [
     "sqlite",
     "chrono",
 ] }
-async-trait = "0.1.77"
 
 [profile.dev]
 debug = true

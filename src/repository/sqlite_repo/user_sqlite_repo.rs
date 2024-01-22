@@ -12,7 +12,7 @@ impl SqliteUserRepository {
   }
 }
 
-#[async_trait]
+
 impl UserRepository for SqliteUserRepository {
   async fn insert_user(
     &self,

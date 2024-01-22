@@ -15,7 +15,6 @@ impl SqliteSeatRepository {
   }
 }
 
-#[async_trait]
 impl SeatRepository for SqliteSeatRepository {
   // 查詢所有位置目前狀態
   async fn query_current_seat_statuses(&self) -> Result<Vec<(u16, String)>, Status> {

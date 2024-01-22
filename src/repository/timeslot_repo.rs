@@ -8,7 +8,6 @@ Repository 層：
 負責直接與數據庫交互
 定義 timeslot Repository 的 interface
 */
-#[async_trait]
 pub trait TimeSlotRepository {
   async fn is_overlapping_with_unavailable_timeslot(
     &self,
