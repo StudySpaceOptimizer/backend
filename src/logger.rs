@@ -48,9 +48,9 @@ pub fn init_logger(level: LevelFilter) {
         level_style,
         record.args()
       );
+      let message = remove_ansi_escape_codes(&message);
       println!("{}", &message);
 
-      let message = remove_ansi_escape_codes(&message);
       writeln!(buf, "{}", message)
     })
     .init();
@@ -63,4 +63,3 @@ fn remove_ansi_escape_codes(s: &str) -> String {
     .replace_all(s, "")
     .to_string()
 }
-
