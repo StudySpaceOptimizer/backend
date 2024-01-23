@@ -26,7 +26,7 @@ impl<U: UserRepository> UserService<U> {
   ) -> Result<User, Status> {
     let password_hash = handle(hash(password, DEFAULT_COST), "Hashing password")?;
     let verification_token = Uuid::new_v4().to_string();
-    let verified = false;
+    let verified = true;
 
     self
       .user_repository

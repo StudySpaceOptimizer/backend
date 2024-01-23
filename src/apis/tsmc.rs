@@ -12,58 +12,68 @@ use tokio::time::{sleep, Duration};
  */
 
 // 獲取狀態碼
-#[get("/api/statuscode/<status_code>")]
-pub fn get_status_code(status_code: u16) -> Result<Json<StatusCodeResponse>, Status> {
-  log::info!("Starting to get status code: status code: {}", status_code);
+#[get("/api/tsmc/reservations/<reservation_id>")]
+pub fn get_status_code(reservation_id: u16) -> Result<(), Status> {
+  log::info!(
+    "Starting to delete reservation: Reservation: {}",
+    reservation_id
+  );
 
-  let status_code = StatusCode::from_u16(status_code).map_err(|_| Status::BadRequest)?;
+  let status = match reservation_id {
+    200 => Ok(()),
+    404 => Err(Status::NotFound),
+    400 => Err(Status::BadRequest),
+    503 => Err(Status::ServiceUnavailable),
+    _ => Err(Status::InternalServerError),
+  };
 
   log::info!(
-    "Completed getting status code successfully: status code: {}",
-    status_code.as_u16()
+    "Completed deleting reservation successfully: Reservation ID: {}",
+    reservation_id
   );
-  Ok(Json(StatusCodeResponse {
-    code: status_code.as_u16(),
-    name: status_code.canonical_reason().unwrap_or("").to_string(),
-  }))
+
+  return status;
 }
 
 // 斷開資料庫連接
-#[get("/api/disconnectdb")]
+#[get("/api/tsmc/seats/status")]
 pub async fn disconnect_db(pool: &State<sqlx::Pool<Sqlite>>) -> Result<(), Status> {
-  // log::info!("Starting to disconnect from database");
+  log::info!("Starting to show current seats status");
   pool.close().await;
-  // log::info!("Completed disconnecting from database successfully");
+  log::info!("Completed showing current seats status successfully");
   Ok(())
 }
 
 // 處理超時
-#[get("/api/timeout/<timeout>")]
-pub async fn timeout(timeout: u64) -> Result<(), Status> {
-  log::info!("Starting to handle timeout: {}", timeout);
+#[get("/api/tsmc/timeslots/<time>")]
+pub async fn timeout(time: u64) -> Result<(), Status> {
+  log::info!("Starting to set unavailable timeslots",);
 
-  sleep(Duration::from_millis(timeout)).await;
+  sleep(Duration::from_millis(time)).await;
 
-  log::info!("Completed handling timeout successfully");
+  log::info!("Completed setting unavailable timeslots successfully");
   Ok(())
 }
 
 // 使用大量記憶體
-#[get("/api/big_memory/<size>")]
-pub fn big_memory(size: usize) -> Result<(), Status> {
-  log::info!("Starting to allocate big memory: Size: {}", size);
+#[get("/api/tsmc/seats/info/<seat_id>")]
+pub fn big_memory(seat_id: usize) -> Result<(), Status> {
+  log::info!("Starting to set seat info: Seat: {}", seat_id);
 
-  let mut v = Vec::with_capacity(size);
-  v.resize(size, 0);
+  let mut v = Vec::with_capacity(seat_id);
+  v.resize(seat_id, 0);
 
-  log::info!("Completed big memory allocation successfully");
+  log::info!(
+    "Completed setting seat info successfully: Seat: {}",
+    seat_id
+  );
   Ok(())
 }
 
 // 使用大量 CPU
-#[get("/api/big_cpu")]
+#[get("/api/tsmc/users/reservations")]
 pub fn big_cpu() -> Result<(), Status> {
-  log::info!("Starting to perform big CPU operation");
+  log::info!("Starting to display reservations");
 
   let mut v = Vec::with_capacity(100000000);
   v.resize(100000000, 0);
@@ -75,7 +85,7 @@ pub fn big_cpu() -> Result<(), Status> {
     }
   }
 
-  log::info!("Completed big CPU operation successfully");
+  log::info!("Completed displaying reservations successfully");
   Ok(())
 }
 

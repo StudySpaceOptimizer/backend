@@ -97,7 +97,7 @@ pub async fn login_user(app: &State<App>, request: Json<LoginRequest>) -> Result
 // 註冊
 #[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct RegisterRequest {
-  #[validate(email)]
+  // #[validate(email)]
   pub email: String,
   #[validate(length(min = 8, max = 20))]
   pub password: String,
@@ -107,7 +107,7 @@ pub struct RegisterRequest {
 // 登入
 #[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct LoginRequest {
-  #[validate(email)]
+  // #[validate(email)]
   pub email: String,
   #[validate(length(min = 8, max = 20))]
   pub password: String,

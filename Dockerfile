@@ -36,24 +36,6 @@ FROM debian:bullseye-slim
 
 RUN apt-get update && apt-get install -y openssl libssl1.1 ca-certificates && rm -rf /var/lib/apt/lists/*
 
-# 下载并编译安装 OpenSSL 3.0.0
-# RUN wget
-# RUN tar -xzf openssl-3.0.0.tar.gz && \
-#     cd openssl-3.0.0 && \
-#     ./config && \
-#     make && make install
-# RUN curl -O https://www.openssl.org/source/openssl-3.2.0.tar.gz && \
-#     tar -xzf openssl-3.2.0.tar.gz && \
-#     cd openssl-3.2.0 && \
-#     ./config && \
-#     make && \
-#     make install
-
-# 安装必要的构建工具和依赖
-# RUN apt-get update && \
-#     apt-get install -y build-essential curl ca-certificates && \
-#     rm -rf /var/lib/apt/lists/*
-
 
 # 複製執行檔和資料庫檔案
 COPY --from=builder /usr/src/study_space_optimizer/target/release/study_space_optimizer /usr/src/study_space_optimizer/study_space_optimizer
@@ -69,3 +51,5 @@ ENV DATABASE_URL=sqlite:./SSO.db3
 
 # 設定容器啟動時運行的命令
 CMD ["/usr/src/study_space_optimizer/study_space_optimizer"]
+
+# us-central1-docker.pkg.dev/tsmccareerhack2024-icsd-grp3/tsmccareerhack2024-icsd-grp3-repository/sso_tsmc:
