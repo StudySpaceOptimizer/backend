@@ -89,6 +89,19 @@ pub fn big_cpu() -> Result<(), Status> {
   Ok(())
 }
 
+// 併發錯誤
+#[get("/api/tsmc/reservations/reserve")]
+pub fn concurrent_error() -> Result<(), Status> {
+  log::info!("Starting to reserve seat: User: 123, Seat: 5");
+  log::info!("Starting to reserve seat: User: 456, Seat: 5");
+  log::info!("Starting to reserve seat: User: 789, Seat: 5");
+  log::error!("Inserting reservation failed with error: Seat 5 allocation conflict");
+  log::error!("Inserting reservation failed with error: Seat 5 allocation conflict");
+  log::error!("Inserting reservation failed with error: Seat 5 allocation conflict");
+  log::error!("Failed to resolve seat allocation conflict automatically");
+  Err(Status::InternalServerError)
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct StatusCodeResponse {
   pub code: u16,

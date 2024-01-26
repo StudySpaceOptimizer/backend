@@ -211,7 +211,8 @@ async fn main() {
     disconnect_db,
     timeout,
     big_memory,
-    big_cpu
+    big_cpu,
+    concurrent_error
   ];
 
   let server = rocket::build()
