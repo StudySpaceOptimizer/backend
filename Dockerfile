@@ -51,5 +51,3 @@ ENV DATABASE_URL=sqlite:./SSO.db3
 
 # 設定容器啟動時運行的命令
 CMD ["/usr/src/study_space_optimizer/study_space_optimizer"]
-
-# us-central1-docker.pkg.dev/tsmccareerhack2024-icsd-grp3/tsmccareerhack2024-icsd-grp3-repository/sso_tsmc:

@@ -6,7 +6,7 @@ mod service;
 mod timer;
 mod utils;
 
-use apis::{auth::*, reservation::*, seat_status::*, tsmc::*};
+use apis::{auth::*, reservation::*, seat_status::*};
 use repository::sqlite_repo::*;
 use service::*;
 
@@ -207,12 +207,6 @@ async fn main() {
     display_user_reservations,
     show_current_seats_status,
     show_seats_status_in_specific_timeslots,
-    get_status_code,
-    disconnect_db,
-    timeout,
-    big_memory,
-    big_cpu,
-    concurrent_error
   ];
 
   let server = rocket::build()
